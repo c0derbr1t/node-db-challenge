@@ -76,12 +76,26 @@ router.post('/', (req, res) => {
         })
 })
 
+router.post('/:id/resources', (req, res) => {
+    const { id } = req.params;
+    const resourceData = req.body;
+
+    Projects.addProjectResource(id, resourceData)
+        .then(project_resource => {
+            res.status(201).json(project_resource);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({ message: 'Failed ot add new Project Resource' })
+        })
+})
+
 router.post('/:id/tasks', (req, res) => {
     // POST a new task for a project
-    const { id } = req.params;
+    // const { id } = req.params;
     const taskData = req.body;
 
-    Projects.addTask(id, taskData)
+    Projects.addTask(taskData)
         .then(task => {
             res.status(201).json(task);
         })
@@ -89,26 +103,6 @@ router.post('/:id/tasks', (req, res) => {
             console.log(err);
             res.status(500).json({ message: 'Failed to add new Task!' });
         })
-})
-
-router.post('/:id/resources', (req, res) => {
-    // POST a new resource for a project
-    const { id } = req.params;
-    const resourceData = req.body.resource;
-    const projectResourceData = req.body.project_resource;
-
-    Projects.addResource(resourceData)
-        .then(resource => {
-            Projects.addProjectResource(projectResourceData)
-                .then(projectResource => {
-                    res.status(201).json({ resource: resource, projectResource: projectResource })
-                })
-                .catch(err => {
-                    console.log(err);
-            res.status(500).json({ message: 'Failed to add new Resource!' });
-                })
-        })
-        .catch()
 })
 
 router.put('/:id', (req, res) => {
@@ -137,83 +131,6 @@ router.put('/:id', (req, res) => {
         })
 })
 
-router.put('/:id/tasks/:task_id', (req, res) => {
-    // UPDATE a task by in a project by task ID 
-    const { id } = req.params;
-    const { task_id } = req.params;
-    const changes = req.body;
-
-    Projects.findById(id)
-        .then(project => {
-            if (project) {
-                Projects.findTaskById(id, task_id)
-                    .then(task => {
-                        Projects.updateTask(id, task_id, changes)
-                            .then(updatedTask => {
-                                res.status(200).json(updatedTask);
-                            })
-                            .catch(err => {
-                                console.log(err);
-            res.status(500).json({ message: 'Failed to update specified Task!' });
-                            })
-                    })
-                    .catch(err => {
-                        console.log(err);
-                        res.status(500).json({ message: 'Could not find specified Task!' })
-                    })
-            } else {
-                res.status(404).json({ message: `Could not find project with id: ${id}!` })
-            }
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({ message: 'Failed to retrieve specified Project!' })
-        })
-})
-
-router.put('/:id/resources/:resource_id', (req, res) => {
-    // UPDATE a resource in a project by resource ID
-    const { id } = req.params;
-    const { resource_id } = req.params;
-    const changes = req.body.resource;
-    const project_resource_changes = req.body.project_resource;
-
-    Projects.findById(id)
-        .then(project => {
-            if (project) {
-                Projects.findResourceById(resource_id)
-                    .then(resource => {
-                        Projects.updateResource(resource_id, changes)
-                            .then(updatedResource => {
-                                Projects.updateProjectResource(id, resource_id, project_resource_changes)
-                                res.status(200).json(updatedResource)
-                                    .then(updatedProjectResource => {
-                                        res.status(200).json({ resource: updatedResource, project_resource: updatedProjectResource })
-                                    })
-                                    .catch(err => {
-                                        console.log(err);
-                                        res.status(500).json({ message: 'Could not update Project Resource' })
-                                    })
-                            })
-                            .catch(err => {
-                                console.log(err);
-                                res.status(500).json({ message: 'Could not update Resource.'})
-                            })
-                    })
-                    .catch(err => {
-                        console.log(err);
-                        res.status(500).json({ message: 'Could not find specified Resource' })
-                    })
-            } else {
-                res.status(404).json({ message: 'Could not find specified Project!' })
-            }
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({ message: 'Failed to retrieve specified Project!' })
-        })
-})
-
 router.delete('/:id', (req, res) => {
     // DELETE a project by ID
     const { id } = req.params;
@@ -225,35 +142,6 @@ router.delete('/:id', (req, res) => {
         .catch(err => {
             console.log(err);
             res.status(500).json({ message: 'Could not delete this Project!' })
-        })
-})
-
-router.delete('/:id/tasks/:task_id', (req, res) => {
-    // DELETE a task in a project by task ID
-    const { id } = req.params;
-    const { task_id } = req.params;
-
-    Projects.removeTask(id, task_id)
-        .then(deleted => {
-            res.status(200).json({ removed: deleted });
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({ message: 'Could not delete this Task!' })
-        })
-})
-
-router.delete('/:id/resources/:resource_id', (req, res) => {
-    // DELETE a resource in a project by resource ID
-    const { resource_id } = req.params;
-
-    Projects.removeResource(resource_id)
-        .then(deleted => {
-            res.status(200).json({ removed: deleted });
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({ message: 'Could not delete this Resource!' })
         })
 })
 

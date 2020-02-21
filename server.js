@@ -9,4 +9,8 @@ server.use(express.json());
 server.use('/api/projects', ProjectRouter);
 server.use('/api/resources', ResourceRouter);
 
+server.get('/', (req, res) => {
+    res.send('<h1>Welcome to the Project Manager</h1>');
+})
+
 module.exports = server;

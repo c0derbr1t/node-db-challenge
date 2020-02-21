@@ -11,9 +11,7 @@ module.exports = {
     addResource,
     addProjectResource,
     update,
-    remove,
-    removeTask,
-    removeResource
+    remove
 }
 
 function find() {
@@ -35,8 +33,6 @@ function findTasks(id) {
         .select('p.name', 'p.description', 't.task_number','t.description', 't.notes')
         .where('t.project_id', id)
         .orderBy('t.task_number');
-        
-
 }
 
 function findResources() {
@@ -54,33 +50,14 @@ function findProjectResources(id) {
         .where('p.id', id);
 }
 
-function findResourceById(id, resource_id) {
-    if(!db('projects').where({ id })) {
-        return null;
-    } else {
-        if(!db('project_resources').where({ project_id: id})) {
-            return null;
-        } else {
-            if(!db('resources').where({ id: resource_id })) {
-                return null;
-            } else {
-                return db('resources'.where({ id: resource_id }))
-            }
-        }
-    }
-}
-
 function add(project) {
-    db('projects')
+    return db('projects')
         .insert(project, 'id');
-    return db('projects');
 }
 
-function addTask(id, task) {
-    db('tasks')
-        .where('project_id', id)
+function addTask(task) {
+    return db('tasks')
         .insert(task, 'id');
-    return db('tasks').where('project_id', id);
 }
 
 function addResource(resource) {
@@ -100,38 +77,8 @@ function update(id, changes) {
         .update(changes);
 }
 
-function updateTask(id, task_id, changes) {
-    return db('tasks')
-        .where('project_id', id, 'id', task_id)
-        .update(changes);
-}
-
-function updateResource(resource_id, changes) {
-    return db('resources')
-        .where('id', resource_id)
-        .update(changes);
-}
-
-function updateProjectResource(id, resource_id, product_resource_changes) {
-    return db('project_resources')
-        .where('project_id', id, 'resource_id', resource_id)
-        .update(product_resource_changes);
-}
-
 function remove(id) {
     return db('projects')
         .where({ id })
         .del();
-}
-
-function removeTask(id, task_id) {
-    return db('tasks')
-        .where('project_id', id, 'id', task_id)
-        .del();
-}
-
-function removeResource(resource_id) {
-    return db('resources')
-        .where('id', resource_id)
-        .del()
 }
